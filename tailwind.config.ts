@@ -6,6 +6,10 @@ export default {
   content: ["./src/**/*.tsx"],
   theme: {
     extend: {
+      container: {
+        center: true,
+        padding: "1rem",
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
       },
