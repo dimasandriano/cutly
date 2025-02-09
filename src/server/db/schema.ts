@@ -16,11 +16,16 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = sqliteTableCreator((name) => name);
 
-export const posts = createTable(
-  "post",
+export const links = createTable(
+  "link",
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
+    name: text("name", { length: 256 }).unique().notNull(),
+    url: text("url", { length: 256 }),
+    clicks: int("clicks", { mode: "number" }).default(0),
+    metaTitle: text("meta_title", { length: 256 }),
+    metaDescription: text("meta_description", { length: 256 }),
+    metaOgImage: text("meta_og_image", { length: 256 }),
     createdById: text("created_by", { length: 255 })
       .notNull()
       .references(() => users.id),
@@ -33,7 +38,6 @@ export const posts = createTable(
   },
   (example) => ({
     createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
   }),
 );
 
