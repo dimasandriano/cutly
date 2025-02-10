@@ -10,7 +10,8 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
+import ProfileModal from "~/components/modal/profile.modal";
 
 export default function ProfilDropdownMenu() {
   const { data: session } = useSession();
@@ -32,14 +33,17 @@ export default function ProfilDropdownMenu() {
             <p className="truncate font-semibold leading-none">
               {session?.user?.name}
             </p>
-            <p className="text-muted-foreground truncate text-sm">
+            <p className="truncate text-sm text-muted-foreground">
               {session?.user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User /> Profile
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <ProfileModal />
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled>
+          <Settings /> Setting
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>

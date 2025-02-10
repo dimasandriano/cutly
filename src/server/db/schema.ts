@@ -32,7 +32,7 @@ export const links = createTable(
     createdAt: int("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
       .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }).$onUpdate(
+    updatedAt: int("updated_at", { mode: "timestamp" }).$onUpdate(
       () => new Date(),
     ),
   },
@@ -52,6 +52,9 @@ export const users = createTable("user", {
     mode: "timestamp",
   }).default(sql`(unixepoch())`),
   image: text("image", { length: 255 }),
+  createdAt: int("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
