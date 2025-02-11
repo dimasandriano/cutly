@@ -9,11 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { LoaderCircle, Moon, Sun } from "lucide-react";
+import { LoaderCircle, Moon, Scissors, Settings2, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import SignInModal from "~/components/modal/sign-in.modal";
 import GithubIcon from "~/components/icon/github.icon";
 import ProfilDropdownMenu from "~/components/dropdown-menu/profil.dropdown-menu";
+import { Input } from "~/components/ui/input";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -58,6 +59,27 @@ export default function Home() {
           ) : (
             <SignInModal />
           )}
+        </div>
+      </div>
+      <div className="mx-auto max-w-5xl space-y-10 py-5">
+        <div className="space-y-3">
+          <h1 className="text-center text-3xl font-semibold md:text-4xl">
+            Free URL Shortener
+          </h1>
+          <h2 className="text-center text-xl font-medium text-muted-foreground md:text-2xl">
+            Cutly is a free open source tool to generate short links
+          </h2>
+        </div>
+        <div className="mx-auto flex max-w-md flex-col">
+          <div className="flex items-center gap-2">
+            <Input />
+            <Button size="icon">
+              <Scissors />
+            </Button>
+            <Button variant="secondary" size="icon">
+              <Settings2 />
+            </Button>
+          </div>
         </div>
       </div>
     </main>
