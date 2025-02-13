@@ -60,6 +60,10 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
       },
+      fontSize: {
+        xxs: ["0.625rem", "0.75rem"],
+        xxxs: ["0.5rem", "0.75rem"],
+      },
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports

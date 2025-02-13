@@ -15,10 +15,26 @@ import SignInModal from "~/components/modal/sign-in.modal";
 import GithubIcon from "~/components/icon/github.icon";
 import ProfilDropdownMenu from "~/components/dropdown-menu/profil.dropdown-menu";
 import { Input } from "~/components/ui/input";
+import { api } from "~/trpc/react";
+import ShortLinkCard from "~/components/card/short-link.card";
+import React from "react";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const { setTheme } = useTheme();
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    api.link.getLink.useInfiniteQuery(
+      {
+        limit: 10,
+      },
+      {
+        getNextPageParam: (lastpage) => lastpage.nextCursor,
+      },
+    );
+  const links = React.useMemo(() => {
+    return data?.pages?.flatMap((item) => item.data);
+  }, [data]);
 
   return (
     <main className="container min-h-screen max-w-5xl">
@@ -70,7 +86,7 @@ export default function Home() {
             Cutly is a free open source tool to generate short links
           </h2>
         </div>
-        <div className="mx-auto flex max-w-md flex-col">
+        <div className="mx-auto flex max-w-md flex-col gap-5">
           <div className="flex items-center gap-2">
             <Input />
             <Button size="icon">
@@ -80,6 +96,19 @@ export default function Home() {
               <Settings2 />
             </Button>
           </div>
+          {session && isLoading ? (
+            <span className="text-center">Loading...</span>
+          ) : (
+            <ShortLinkCard data={links} />
+          )}
+          {hasNextPage && (
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? "Loading..." : "Next Page"}
+            </Button>
+          )}
         </div>
       </div>
     </main>
