@@ -22,6 +22,9 @@ import React from "react";
 export default function Home() {
   const { data: session, status } = useSession();
   const { setTheme } = useTheme();
+  const [url, setUrl] = React.useState<string>("");
+
+  const utils = api.useUtils();
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.link.getLink.useInfiniteQuery(
@@ -35,6 +38,16 @@ export default function Home() {
   const links = React.useMemo(() => {
     return data?.pages?.flatMap((item) => item.data);
   }, [data]);
+
+  const { mutate: createLink, isPending } = api.link.createLink.useMutation({
+    onSuccess: async () => {
+      await utils.link.getLink.invalidate();
+      setUrl("");
+    },
+    onError: ({ data }) => {
+      console.log(data?.error);
+    },
+  });
 
   return (
     <main className="container min-h-screen max-w-5xl">
@@ -88,8 +101,12 @@ export default function Home() {
         </div>
         <div className="mx-auto flex max-w-md flex-col gap-5">
           <div className="flex items-center gap-2">
-            <Input />
-            <Button size="icon">
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} />
+            <Button
+              size="icon"
+              onClick={() => createLink({ url: url })}
+              disabled={isPending}
+            >
               <Scissors />
             </Button>
             <Button variant="secondary" size="icon">
@@ -106,7 +123,7 @@ export default function Home() {
               onClick={() => fetchNextPage()}
               disabled={isFetchingNextPage}
             >
-              {isFetchingNextPage ? "Loading..." : "Next Page"}
+              {isFetchingNextPage ? "Loading..." : "Load More"}
             </Button>
           )}
         </div>
