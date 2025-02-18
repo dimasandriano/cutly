@@ -21,7 +21,7 @@ export const links = createTable(
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     name: text("name", { length: 256 }).unique().notNull(),
-    url: text("url", { length: 256 }),
+    url: text("url", { length: 256 }).notNull(),
     clicks: int("clicks", { mode: "number" }).default(0),
     metaTitle: text("meta_title", { length: 256 }),
     metaDescription: text("meta_description", { length: 256 }),
@@ -40,6 +40,10 @@ export const links = createTable(
     createdByIdIdx: index("created_by_idx").on(example.createdById),
   }),
 );
+
+export const linksRelations = relations(links, ({ one }) => ({
+  user: one(users, { fields: [links.createdById], references: [users.id] }),
+}));
 
 export const users = createTable("user", {
   id: text("id", { length: 255 })

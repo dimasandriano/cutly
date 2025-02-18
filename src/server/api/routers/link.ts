@@ -1,5 +1,9 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { string, z } from "zod";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { links } from "~/server/db/schema";
 import Hashids from "hashids";
 
@@ -40,6 +44,21 @@ export const linkRouter = createTRPCRouter({
         name: hashids.encode(Math.floor(Date.now() / 1000)),
         url: input.url,
         createdById: ctx.session.user.id,
+      });
+      return link;
+    }),
+  getLinkByName: publicProcedure
+    .input(
+      z.object({
+        name: string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const link = await ctx.db.query.links.findFirst({
+        where: (links, { eq }) => eq(links.name, input.name),
+        with: {
+          user: true,
+        },
       });
       return link;
     }),
