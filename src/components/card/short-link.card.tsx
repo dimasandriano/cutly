@@ -25,7 +25,7 @@ export default function ShortLinkCard({ data }: Props) {
               <div className="flex flex-col justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Link
-                    href={env.NEXT_PUBLIC_BASE_URL + "/" + link?.name}
+                    href={link?.name}
                     className="w-[168px] truncate text-sm font-medium"
                     target="_blank"
                   >
