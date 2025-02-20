@@ -18,11 +18,34 @@ import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import ShortLinkCard from "~/components/card/short-link.card";
 import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "~/components/ui/form";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const { setTheme } = useTheme();
-  const [url, setUrl] = React.useState<string>("");
+
+  const form = useForm({
+    mode: "onSubmit",
+    resolver: zodResolver(
+      z.object({
+        url: z.string().url({
+          message: "Masukkan url yang valid",
+        }),
+      }),
+    ),
+    defaultValues: {
+      url: "",
+    },
+  });
 
   const utils = api.useUtils();
 
@@ -42,7 +65,7 @@ export default function Home() {
   const { mutate: createLink, isPending } = api.link.createLink.useMutation({
     onSuccess: async () => {
       await utils.link.getLink.invalidate();
-      setUrl("");
+      form.reset();
     },
     onError: ({ data }) => {
       console.log(data?.error);
@@ -100,19 +123,33 @@ export default function Home() {
           </h2>
         </div>
         <div className="mx-auto flex max-w-md flex-col gap-5">
-          <div className="flex items-center gap-2">
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} />
-            <Button
-              size="icon"
-              onClick={() => createLink({ url: url })}
-              disabled={isPending}
-            >
-              <Scissors />
-            </Button>
-            <Button variant="secondary" size="icon">
-              <Settings2 />
-            </Button>
-          </div>
+          <Form {...form}>
+            <div className="flex items-start gap-2">
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormControl>
+                      <Input placeholder="Enter your link here" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                size="icon"
+                onClick={() => form.handleSubmit((data) => createLink(data))()}
+                type="submit"
+                disabled={isPending}
+              >
+                <Scissors />
+              </Button>
+              <Button variant="secondary" size="icon">
+                <Settings2 />
+              </Button>
+            </div>
+          </Form>
           {session && isLoading ? (
             <span className="text-center">Loading...</span>
           ) : (

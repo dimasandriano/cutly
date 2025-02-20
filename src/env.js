@@ -15,6 +15,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
     DATABASE_TOKEN: z.string(),
+    VERCEL_URL: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -27,7 +28,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
-    NEXT_PUBLIC_BASE_URL: z.string().url(),
+    NEXT_PUBLIC_BASE_URL: z.string(),
   },
 
   /**
@@ -40,6 +41,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     DATABASE_TOKEN: process.env.DATABASE_TOKEN,
+    VERCEL_URL: process.env.VERCEL_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
   },

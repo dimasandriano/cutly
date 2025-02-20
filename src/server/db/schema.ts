@@ -23,9 +23,6 @@ export const links = createTable(
     name: text("name", { length: 256 }).unique().notNull(),
     url: text("url", { length: 256 }).notNull(),
     clicks: int("clicks", { mode: "number" }).default(0),
-    metaTitle: text("meta_title", { length: 256 }),
-    metaDescription: text("meta_description", { length: 256 }),
-    metaOgImage: text("meta_og_image", { length: 256 }),
     createdById: text("created_by", { length: 255 })
       .notNull()
       .references(() => users.id),

@@ -6,6 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { links } from "~/server/db/schema";
 import Hashids from "hashids";
+import { eq, sql } from "drizzle-orm";
 
 export const linkRouter = createTRPCRouter({
   getLink: protectedProcedure
@@ -60,6 +61,20 @@ export const linkRouter = createTRPCRouter({
           user: true,
         },
       });
+      return link;
+    }),
+  increaseClicks: publicProcedure
+    .input(
+      z.object({
+        name: string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const link = await ctx.db
+        .update(links)
+        .set({ clicks: sql`${links.clicks} + 1` })
+        .where(eq(links.name, input.name))
+        .returning();
       return link;
     }),
 });
