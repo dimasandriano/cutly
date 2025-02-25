@@ -7,6 +7,7 @@ import {
 import { links } from "~/server/db/schema";
 import Hashids from "hashids";
 import { eq, sql } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const linkRouter = createTRPCRouter({
   getLink: protectedProcedure
@@ -37,12 +38,21 @@ export const linkRouter = createTRPCRouter({
         url: z.string().url({
           message: "Masukkan url yang valid",
         }),
+        name: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const hashids = new Hashids(ctx.session.user.id);
+      const generateName = hashids.encode(Math.floor(Date.now() / 1000));
+      const name = input.name ?? generateName;
+      const validateName = await ctx.db.query.links.findFirst({
+        where: (links, { eq }) => eq(links.name, name),
+      });
+      if (!validateName) {
+        throw new TRPCError({ code: "CONFLICT", message: "Link sudah ada" });
+      }
       const link = await ctx.db.insert(links).values({
-        name: hashids.encode(Math.floor(Date.now() / 1000)),
+        name: generateName,
         url: input.url,
         createdById: ctx.session.user.id,
       });

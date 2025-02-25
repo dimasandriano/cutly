@@ -56,6 +56,7 @@ export default function Home() {
       },
       {
         getNextPageParam: (lastpage) => lastpage.nextCursor,
+        enabled: !!session,
       },
     );
   const links = React.useMemo(() => {
@@ -123,33 +124,37 @@ export default function Home() {
           </h2>
         </div>
         <div className="mx-auto flex max-w-md flex-col gap-5">
-          <Form {...form}>
-            <div className="flex items-start gap-2">
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <Input placeholder="Enter your link here" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                size="icon"
-                onClick={() => form.handleSubmit((data) => createLink(data))()}
-                type="submit"
-                disabled={isPending}
-              >
-                <Scissors />
-              </Button>
-              <Button variant="secondary" size="icon">
-                <Settings2 />
-              </Button>
-            </div>
-          </Form>
+          {session && (
+            <Form {...form}>
+              <div className="flex items-start gap-2">
+                <FormField
+                  control={form.control}
+                  name="url"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input placeholder="Enter your link here" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  size="icon"
+                  onClick={() =>
+                    form.handleSubmit((data) => createLink(data))()
+                  }
+                  type="submit"
+                  disabled={isPending}
+                >
+                  <Scissors />
+                </Button>
+                <Button variant="secondary" size="icon">
+                  <Settings2 />
+                </Button>
+              </div>
+            </Form>
+          )}
           {session && isLoading ? (
             <span className="text-center">Loading...</span>
           ) : (
