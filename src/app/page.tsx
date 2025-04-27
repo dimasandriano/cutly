@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { LoaderCircle, Moon, Scissors, Settings2, Sun } from "lucide-react";
+import { LoaderCircle, Moon, Scissors, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import SignInModal from "~/components/modal/sign-in.modal";
 import GithubIcon from "~/components/icon/github.icon";
@@ -28,6 +28,8 @@ import {
   FormItem,
   FormMessage,
 } from "~/components/ui/form";
+import CustomUrlModal from "~/components/modal/custom-url.modal";
+import { toast } from "sonner";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -67,9 +69,10 @@ export default function Home() {
     onSuccess: async () => {
       await utils.link.getLink.invalidate();
       form.reset();
+      toast.success("Link berhasil dibuat");
     },
-    onError: ({ data }) => {
-      console.log(data?.error);
+    onError: ({ shape }) => {
+      toast.error("Link gagal dibuat", { description: shape?.message });
     },
   });
 
@@ -149,9 +152,7 @@ export default function Home() {
                 >
                   <Scissors />
                 </Button>
-                <Button variant="secondary" size="icon">
-                  <Settings2 />
-                </Button>
+                <CustomUrlModal />
               </div>
             </Form>
           )}
@@ -159,6 +160,14 @@ export default function Home() {
             <span className="text-center">Loading...</span>
           ) : (
             <ShortLinkCard data={links} />
+          )}
+          {!session && (
+            <Button
+              className="w-fit self-center"
+              onClick={() => signIn("google")}
+            >
+              Sign in to create short link
+            </Button>
           )}
           {hasNextPage && (
             <Button

@@ -3,9 +3,11 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { generateFaviconFromUrl, timeAgo } from "~/lib/utils";
 import Link from "next/link";
-import { Copy, EllipsisVertical, Eye } from "lucide-react";
+import { Copy, Eye } from "lucide-react";
 import { type LinkType } from "~/server/db/schema";
 import { env } from "~/env";
+import EditUrlModal from "../modal/edit-url.modal";
+import { toast } from "sonner";
 
 type Props = {
   data?: LinkType[];
@@ -31,7 +33,16 @@ export default function ShortLinkCard({ data }: Props) {
                   >
                     {env.NEXT_PUBLIC_BASE_URL + "/" + link?.name}
                   </Link>
-                  <Copy size={14} strokeWidth={1} />
+                  <div
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(
+                        env.NEXT_PUBLIC_BASE_URL + "/" + link?.name,
+                      );
+                      toast.success("Link berhasil disalin");
+                    }}
+                  >
+                    <Copy size={14} strokeWidth={1} />
+                  </div>
                   <div className="flex items-center gap-1">
                     <Eye size={14} strokeWidth={1} />
                     <p className="text-xs text-muted-foreground">
@@ -49,7 +60,7 @@ export default function ShortLinkCard({ data }: Props) {
               </div>
             </div>
             <div className="flex flex-col items-end justify-between">
-              <EllipsisVertical size={14} strokeWidth={1} />
+              <EditUrlModal name={link?.name ?? ""} />
               <p className="text-xxs font-medium text-muted-foreground">
                 {timeAgo(link.createdAt)}
               </p>

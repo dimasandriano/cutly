@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import { number, string, z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -48,11 +48,11 @@ export const linkRouter = createTRPCRouter({
       const validateName = await ctx.db.query.links.findFirst({
         where: (links, { eq }) => eq(links.name, name),
       });
-      if (!validateName) {
+      if (validateName) {
         throw new TRPCError({ code: "CONFLICT", message: "Link sudah ada" });
       }
       const link = await ctx.db.insert(links).values({
-        name: generateName,
+        name: name,
         url: input.url,
         createdById: ctx.session.user.id,
       });
@@ -84,6 +84,75 @@ export const linkRouter = createTRPCRouter({
         .update(links)
         .set({ clicks: sql`${links.clicks} + 1` })
         .where(eq(links.name, input.name))
+        .returning();
+      return link;
+    }),
+  deleteLink: protectedProcedure
+    .input(
+      z.object({
+        id: number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const link = await ctx.db.query.links.findFirst({
+        where: (links, { eq }) => eq(links.id, input.id),
+      });
+      if (!link) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Link tidak ditemukan",
+        });
+      }
+      if (link.createdById !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Tidak diizinkan untuk menghapus link ini",
+        });
+      }
+      await ctx.db.delete(links).where(eq(links.id, input.id));
+      return link;
+    }),
+  updateLink: protectedProcedure
+    .input(
+      z.object({
+        id: number(),
+        name: string().optional(),
+        url: string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const linkToUpdate = await ctx.db.query.links.findFirst({
+        where: (links, { eq }) => eq(links.id, input.id),
+      });
+
+      if (!linkToUpdate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Link tidak ditemukan",
+        });
+      }
+
+      if (linkToUpdate.createdById !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Tidak diizinkan untuk mengupdate link ini",
+        });
+      }
+      if (input.name) {
+        const findLink = await ctx.db.query.links.findFirst({
+          where: (links, { eq }) => eq(links.name, input.name ?? ""),
+        });
+        if (findLink) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Kustom link sudah ada",
+          });
+        }
+      }
+      const link = await ctx.db
+        .update(links)
+        .set({ name: input.name, url: input.url })
+        .where(eq(links.id, input.id))
         .returning();
       return link;
     }),
